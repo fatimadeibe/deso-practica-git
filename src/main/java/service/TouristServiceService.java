@@ -6,6 +6,8 @@ import exception.FlightNotFoundException;
 import exception.ServiceNotFoundException;
 import repository.dao.FlightDao;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class TouristServiceService {
@@ -41,9 +43,22 @@ public class TouristServiceService {
   }
 
   // Ejercicio 4
-  public List<Flight> getFlightsSortedByPriceThenAirline(
-      List<String> flightNumbers, FlightDao flightDao) throws FlightNotFoundException {
-    throw new UnsupportedOperationException(
-        "Ejercicio 4: implement getFlightsSortedByPriceThenAirline");
+  public List<Flight> getFlightsSortedByPriceThenAirline(List<String> flightNumbers, FlightDao flightDao) throws FlightNotFoundException {
+    /* Debe recuperarse cada vuelo del DAO por número y devolverse la lista ordenada por precio
+    calculado ascendente y, en caso de empate, por aerolínea en orden alfabético (Comparator.comparing(...).thenComparing(...)).
+    Si algún número no existe, debe lanzarse FlightNotFoundException. */
+    List<Flight> flights = new ArrayList<Flight>();
+    for (String flightNumber : flightNumbers) {
+      Flight flight = flightDao.findByNumber(flightNumber)
+      .orElseThrow(() -> new FlightNotFoundException(flightNumber));
+
+      flights.add(flight);
+    }
+
+    // Ordenamos la lista por precio calculado de forma, y por aerolínea en caso de empate (ASCENDENTE)
+    flights.sort(Comparator.comparing((Flight f) -> f.calculatePrice())
+      .thenComparing(f -> f.getAirline()));
+
+    return flights;
   }
 }
