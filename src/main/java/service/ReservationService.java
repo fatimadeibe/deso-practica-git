@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -109,7 +110,37 @@ public class ReservationService {
           FlightNotFoundException,
           InvalidDateRangeException,
           DataAccessException {
-    throw new UnsupportedOperationException("Ejercicio 7: implement createReservation");
+    User user =
+        userDao
+            .findByUsername(username)
+            .orElseThrow(() -> new UserNotFoundException(username));
+    var service =
+        flightDao
+            .findByNumber(flightNumber)
+            .orElseThrow(() -> new FlightNotFoundException(flightNumber));
+
+    if (date == null || date.isBefore(Instant.now())) {
+      throw new InvalidDateRangeException("Reservation date must not be null or in the past");
+    }
+
+    Reservation reservation =
+        new Reservation.Builder()
+            .id((long) (Math.random() * 1000))
+            .owner(user)
+            .service(service)
+            .date(date)
+            .build();
+    try {
+      reservationDao.save(reservation);
+    } catch (DataAccessException e) {
+      throw new DataAccessException(
+          "Error al guardar la reserva para usuario "
+              + username
+              + " y vuelo "
+              + flightNumber,
+          e);
+    }
+    return reservation;
   }
 
   // Ejercicio 8
@@ -118,13 +149,26 @@ public class ReservationService {
       Reservation newReservation,
       ReservationDao reservationDao)
       throws DuplicateReservationException, DataAccessException {
-    throw new UnsupportedOperationException("Ejercicio 8: implement addReservationIfNotDuplicate");
+    boolean duplicate =
+        existingReservations.stream()
+            .anyMatch(
+                reservation ->
+                    Objects.equals(
+                            reservation.getOwner().getId(), newReservation.getOwner().getId())
+                        && Objects.equals(
+                            reservation.getService().getId(), newReservation.getService().getId()));
+    if (duplicate) {
+      throw new DuplicateReservationException(
+          newReservation.getOwner().getId(), newReservation.getService().getId());
+    }
+    reservationDao.save(newReservation);
+    return newReservation;
   }
 
   // Ejercicio 10
   public void exportReservationsToCsv(
       List<Reservation> reservations, ReservationExportDao exportDao) throws DataAccessException {
-    throw new UnsupportedOperationException("Ejercicio 10: implement exportReservationsToCsv");
+    exportDao.exportAll(reservations);
   }
 
   // Ejercicio 11

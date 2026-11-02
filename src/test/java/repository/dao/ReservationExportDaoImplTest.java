@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.time.Instant;
 import java.util.List;
+import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -35,7 +36,8 @@ class ReservationExportDaoImplTest {
     List<String> lines = readLines(file);
     assertEquals("reservationId,date,ownerUsername,serviceCompany,calculatedPrice", lines.get(0));
     assertEquals(
-        String.format("971,%s,fede,AeroLine SA,%.2f", date, reservation.calculatePrice()),
+        String.format(
+            Locale.ROOT, "971,%s,fede,AeroLine SA,%.2f", date, reservation.calculatePrice()),
         lines.get(1));
   }
 

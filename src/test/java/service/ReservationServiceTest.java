@@ -34,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -432,6 +433,20 @@ class ReservationServiceTest {
       reservationService.exportReservationsToCsv(reservations, exportDao);
 
       verify(exportDao).exportAll(reservations);
+    }
+
+    @Test
+    void should_propagateDataAccessException_when_exportDaoFails() throws Exception {
+      List<Reservation> reservations = List.of();
+      DataAccessException failure = new DataAccessException("export failed");
+      doThrow(failure).when(exportDao).exportAll(reservations);
+
+      DataAccessException thrown =
+          assertThrows(
+              DataAccessException.class,
+              () -> reservationService.exportReservationsToCsv(reservations, exportDao));
+
+      assertEquals(failure, thrown);
     }
   }
 

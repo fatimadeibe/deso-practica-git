@@ -35,7 +35,12 @@ class FileUserDaoImplTest {
   @Test
   void should_skipMalformedLines_when_lineHasWrongTokenCount() throws Exception {
     UUID id = UUID.randomUUID();
-    File file = writeFile(id + " fede extraToken\n" + "onlyOneToken\n" + id + " ana\n");
+    File file =
+        writeFile(
+            id + " fede extraToken\n"
+                + "onlyOneToken\n"
+                + "not-a-uuid malformed\n"
+                + id + " ana\n");
 
     List<User> users = new FileUserDaoImpl(file).findAll();
 

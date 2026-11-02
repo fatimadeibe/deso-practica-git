@@ -100,8 +100,28 @@ class UserServiceTest {
     }
 
     @Test
+    void should_throwIncompleteUserException_when_countryIsNull() throws Exception {
+      var location = Fixtures.location(null, "Cordoba");
+      User user = Fixtures.user("fede", location);
+      when(userDao.findByUsername("fede")).thenReturn(Optional.of(user));
+
+      assertThrows(
+          IncompleteUserException.class, () -> userService.getValidatedUser("fede", userDao));
+    }
+
+    @Test
     void should_throwIncompleteUserException_when_cityIsEmpty() throws Exception {
       var location = Fixtures.location("Argentina", "");
+      User user = Fixtures.user("fede", location);
+      when(userDao.findByUsername("fede")).thenReturn(Optional.of(user));
+
+      assertThrows(
+          IncompleteUserException.class, () -> userService.getValidatedUser("fede", userDao));
+    }
+
+    @Test
+    void should_throwIncompleteUserException_when_cityIsNull() throws Exception {
+      var location = Fixtures.location("Argentina", null);
       User user = Fixtures.user("fede", location);
       when(userDao.findByUsername("fede")).thenReturn(Optional.of(user));
 
