@@ -12,10 +12,7 @@ import exception.DuplicateReservationException;
 import exception.FlightNotFoundException;
 import exception.InvalidDateRangeException;
 import exception.UserNotFoundException;
-import repository.dao.FlightDao;
-import repository.dao.ReservationDao;
-import repository.dao.ReservationExportDao;
-import repository.dao.UserDao;
+import repository.dao.*;
 import util.Pair;
 
 import java.time.Instant;
@@ -89,8 +86,17 @@ public class ReservationService {
   public List<Reservation> getTopNMostExpensive(
       ReservationDao reservationDao, Instant from, Instant to, int n)
       throws InvalidDateRangeException, DataAccessException {
-    throw new UnsupportedOperationException("Ejercicio 3: implement getTopNMostExpensive");
+
+    if (from == null || to == null || to.isBefore(from) ){
+      throw new InvalidDateRangeException("Error en el rango definido");
+    }
+    if (n<=0) {
+      return List.of(); //devuelve lista vacia si n menor a cero
+    }
+    List<Reservation> NMostExpensive= reservationDao.findByDateRange(from,to);
+      return NMostExpensive.stream().sorted(Comparator.comparingDouble(Reservation::calculatePrice).reversed()).limit(n).toList();
   }
+
 
   // Ejercicio 5
   public Map<String, List<Reservation>> groupReservationsByCountry(List<Reservation> reservations) {
